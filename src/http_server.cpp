@@ -95,8 +95,7 @@ void HttpServer::run(int port) {
                 std::string request(buffer, bytes_received);
                 std::string response;
                 std::string content_type = "text/html";
-                
-                // Извлекаем путь из запроса
+              
                 std::string path;
                 size_t path_start = request.find("GET ") + 4;
                 size_t path_end = request.find(" HTTP/1.1");
@@ -107,15 +106,15 @@ void HttpServer::run(int port) {
                     }
                 }
                 
-                // Обработка API
+         
                 if (path.find("/api/current") == 0 || path.find("/api/stats") == 0) {
                     auto [body, ct] = handler_(path);
                     response = "HTTP/1.1 200 OK\r\nContent-Type: " + ct + "\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;
                 } else {
-                    // Обработка статических файлов
+                   
                     std::string filepath = "web/public" + path;
                     
-                    // Определяем тип контента
+                
                     if (filepath.find(".css") != std::string::npos) content_type = "text/css";
                     else if (filepath.find(".js") != std::string::npos) content_type = "application/javascript";
                     else if (filepath.find(".json") != std::string::npos) content_type = "application/json";
