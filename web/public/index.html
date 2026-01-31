@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель температуры</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 25px; border-radius: 12px; }
+        h1 { text-align: center; color: #22d3ee; margin-bottom: 20px; }
+        .current { font-size: 3rem; text-align: center; color: #22d3ee; margin: 20px 0; }
+        .controls { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+        select, button { padding: 8px 15px; border-radius: 6px; border: none; background: #334155; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
+        th { background: #334155; }
+        tr:hover { background: #334155; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌡️ Панель температуры</h1>
+        <div class="current" id="currentTemp">Загрузка...</div>
+        
+        <div class="controls">
+            <select id="period">
+                <option value="3600000">Последний час</option>
+                <option value="86400000" selected>Последние сутки</option>
+                <option value="2592000000">Последние 30 дней</option>
+            </select>
+            <select id="bucket">
+                <option value="raw">Сырые измерения</option>
+                <option value="hourly" selected>Почасовой средний</option>
+                <option value="daily">Дневной средний</option>
+            </select>
+            <button id="refresh">🔄 Обновить</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Температура (°C)</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable">
+                <tr><td colspan="2">Загрузка данных...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchData() {
+            try {
+                const current = await fetch('/api/current').then(r => r.json());
+                document.getElementById('currentTemp').textContent = current.value.toFixed(2) + ' °C';
+                
+                const period = document.getElementById('period').value;
+                const bucket = document.getElementById('bucket').value;
+                const end = Date.now();
+                const start = end - parseInt(period);
+                
+                const stats = await fetch(`/api/stats?bucket=${bucket}&start=${start}&end=${end}`).then(r => r.json());
+                const tbody = document.getElementById('dataTable');
+                tbody.innerHTML = '';
+                
+                if (stats.data && stats.data.length > 0) {
+                    stats.data.slice(0, 20).forEach(item => {
+                        const row = document.createElement('tr');
+                        const timeCell = document.createElement('td');
+                        const tempCell = document.createElement('td');
+                        
+                        const date = new Date(item[0]);
+                        timeCell.textContent = date.toLocaleString('ru-RU');
+                        tempCell.textContent = item[1].toFixed(2) + ' °C';
+                        
+                        row.appendChild(timeCell);
+                        row.appendChild(tempCell);
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>';
+                }
+            } catch (e) {
+                console.error('Error:', e);
+                document.getElementById('dataTable').innerHTML = '<tr><td colspan="2">Ошибка загрузки</td></tr>';
+            }
+        }
+        
+        document.getElementById('refresh').addEventListener('click', fetchData);
+        document.getElementById('period').addEventListener('change', fetchData);
+        document.getElementById('bucket').addEventListener('change', fetchData);
+        
+        // Автообновление каждые 5 секунд
+        setInterval(fetchData, 5000);
+        fetchData();
+    </script>
+</body>
+</html>
