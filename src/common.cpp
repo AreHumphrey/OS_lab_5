@@ -32,7 +32,7 @@ std::string iso_time(const TimePoint& tp) {
 }
 
 std::string data_dir() {
-    // Используем текущую директорию как корень проекта
+   
     return fs::current_path().string();
 }
 
@@ -41,12 +41,11 @@ std::string db_path() {
 }
 
 std::string web_root() {
-    // Веб-файлы находятся в папке web/public относительно корня проекта
-    // При запуске из build/bin поднимаемся на 2 уровня вверх
+   
     fs::path current = fs::current_path();
     fs::path web_dir;
     
-    // Определяем корень проекта по наличию папки web
+  
     if (fs::exists(current / "web" / "public")) {
         web_dir = current / "web";
     } else if (fs::exists(current.parent_path() / "web" / "public")) {
@@ -54,7 +53,7 @@ std::string web_root() {
     } else if (fs::exists(current.parent_path().parent_path() / "web" / "public")) {
         web_dir = current.parent_path().parent_path() / "web";
     } else {
-        // Если не нашли — используем текущую директорию
+
         web_dir = current / "web";
     }
     
