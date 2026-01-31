@@ -8,7 +8,7 @@ namespace lab5 {
 
 class HttpServer {
 public:
-    // handler returns {body, content_type}
+ 
     bool start(int port, std::function<std::pair<std::string, std::string>(const std::string&)> handler, std::string& err);
     void stop();
 
@@ -19,7 +19,7 @@ private:
     bool running_ = false;
     std::thread thread_;
 #ifdef _WIN32
-    long long listen_fd_ = -1;  // SOCKET stored as intptr
+    long long listen_fd_ = -1; 
 #else
     int listen_fd_ = -1;
 #endif
