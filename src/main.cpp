@@ -229,7 +229,7 @@ int run_main(bool simulate) {
             return {oss.str(), "application/json"};
         }
         
-        // === ИСПРАВЛЕННЫЙ БЛОК ОБРАБОТКИ СТАТИЧЕСКИХ ФАЙЛОВ ===
+      
         std::string base_path = web_root();
         std::string filepath = base_path + "/public";
         
@@ -258,7 +258,7 @@ int run_main(bool simulate) {
             return {content, content_type};
         }
         
-        // Отладочный вывод
+      
         std::cerr << "[DEBUG] File not found: " << filepath << std::endl;
         std::cerr << "[DEBUG] Current dir: " << fs::current_path().string() << std::endl;
         std::cerr << "[DEBUG] Web root: " << base_path << std::endl;
